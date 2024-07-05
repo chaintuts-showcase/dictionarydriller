@@ -9,6 +9,30 @@ use base64::Engine;
 use std::env;
 use std::io::{Error, ErrorKind};
 
+/* This function conducts the dictionary attack */
+fn attack(argon2_hash: argon2::PasswordHash, wordlist_filename: &String) -> (bool, String)
+{
+	let mut found = false;
+	let mut found_password = String::from("");
+	for word_line in std::fs::read_to_string(wordlist_filename).unwrap().lines()
+	{
+		// Get the word from file
+		let word = word_line.to_string();
+        
+		// Use the argon2 libraries verify_password functionality to check
+		// the word against the supplied password hash
+		// Print information about the match if found
+		let hash_match = argon2::Argon2::default().verify_password(word.as_bytes(), &argon2_hash).is_ok();
+		if hash_match
+		{
+			found_password = word;
+			found = true;
+		}		
+    }
+	
+	return (found, found_password);
+}
+
 /* The main entry point for the program */
 fn main() -> Result<(), Error>
 {	
@@ -36,25 +60,8 @@ fn main() -> Result<(), Error>
 	
 	// Try the dictionary attack
 	println!("Running attack");
+	let(found, found_password) = attack(argon2_hash, wordlist_filename);
 
-	let mut found = false;
-	let mut found_password = String::from("");
-	for word_line in std::fs::read_to_string(wordlist_filename).unwrap().lines()
-	{
-		// Get the word from file
-		let word = word_line.to_string();
-        
-		// Use the argon2 libraries verify_password functionality to check
-		// the word against the supplied password hash
-		// Print information about the match if found
-		let hash_match = argon2::Argon2::default().verify_password(word.as_bytes(), &argon2_hash).is_ok();
-		if hash_match
-		{
-			found_password = word;
-			found = true;
-		}		
-    }
-	
 	// Report the results
 	println!("Attack finished");
 	if found == true
