@@ -42,3 +42,6 @@ ____________
 ### Command Line Usage
 * Run `./dictionarydriller <wordlist_filename> <password_hash>` to crack the Argon2 hash using the specified wordlist_filename
 * Example: "$argon2i$v=19$m=16,t=2,p=1$Zm9vYmFyYmF6$YMoljsb76DqkMZExF1AZZg" - password "rockyou" with salt "foobarbaz"
+
+### Unit tests
+* Run `cargo test`
